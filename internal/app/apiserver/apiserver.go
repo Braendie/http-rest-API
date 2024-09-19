@@ -38,6 +38,10 @@ func (s *APIServer) Start() error {
 		return err
 	}
 
+	if err := s.configureStore(); err != nil {
+		return err
+	}
+
 	s.logger.Info("starting api server")
 
 	return http.ListenAndServe(s.config.BindAddr, s.router)
