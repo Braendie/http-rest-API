@@ -149,8 +149,16 @@ func (s *server) handleWhoami() http.HandlerFunc {
 
 func (s *server) handleUsersCreate() http.HandlerFunc {
 	type request struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
+		IDTelegram  int    `json:"id_telegram"`
+		Email       string `json:"email"`
+		Password    string `json:"password"`
+		FisrtName   string `json:"first_name"`
+		LastName    string `json:"last_name"`
+		Height      int    `json:"height"`
+		Age         int    `json:"age"`
+		Weight      int    `json:"weight"`
+		Gender      int    `json:"gender"`
+		PhoneNumber string `json:"phone_number"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
