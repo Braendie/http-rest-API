@@ -149,7 +149,6 @@ func (s *server) handleWhoami() http.HandlerFunc {
 
 func (s *server) handleUsersCreate() http.HandlerFunc {
 	type request struct {
-		IDTelegram  int    `json:"id_telegram"`
 		Email       string `json:"email"`
 		Password    string `json:"password"`
 		FisrtName   string `json:"first_name"`
@@ -157,7 +156,7 @@ func (s *server) handleUsersCreate() http.HandlerFunc {
 		Height      int    `json:"height"`
 		Age         int    `json:"age"`
 		Weight      int    `json:"weight"`
-		Gender      int    `json:"gender"`
+		Gender      string    `json:"gender"`
 		PhoneNumber string `json:"phone_number"`
 	}
 
@@ -171,6 +170,11 @@ func (s *server) handleUsersCreate() http.HandlerFunc {
 		u := &model.User{
 			Email:    req.Email,
 			Password: req.Password,
+			FirstName: req.FisrtName,
+			LastName: req.LastName,
+			Height: req.Height,
+			Gender: req.Gender,
+			PhoneNumber: req.PhoneNumber,
 		}
 		if err := s.store.User().Create(u); err != nil {
 			s.error(w, r, http.StatusUnprocessableEntity, err)
