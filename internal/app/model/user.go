@@ -12,13 +12,27 @@ type User struct {
 	Email             string `json:"email"`
 	Password          string `json:"password,omitempty"`
 	EncryptedPassword string `json:"-"`
+	// FirstName         string `json:"first_name"`
+	// LastName          string `json:"last_name"`
+	// Height            int    `json:"height"`
+	// Age               int    `json:"age"`
+	// Weight            int    `json:"weight"`
+	// Gender            string `json:"gender"`
+	// PhoneNumber       string `json:"phone_number"`
 }
 
 func (u *User) Validate() error {
 	return validation.ValidateStruct(
 		u,
 		validation.Field(&u.Email, validation.Required, is.Email),
-		validation.Field(&u.Password, validation.By(requiredIf(u.EncryptedPassword == "")), validation.Length(6, 100)),
+		validation.Field(&u.Password, validation.By(requiredIf(u.EncryptedPassword == "")), validation.Length(6, 20)),
+		// validation.Field(&u.FirstName, validation.Required),
+		// validation.Field(&u.LastName, validation.Required),
+		// validation.Field(&u.Height, validation.Required),
+		// validation.Field(&u.Age, validation.Required),
+		// validation.Field(&u.Weight, validation.Required),
+		// validation.Field(&u.Gender, validation.Required),
+		// validation.Field(&u.PhoneNumber),
 	)
 }
 

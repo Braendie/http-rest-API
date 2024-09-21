@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -60,9 +61,14 @@ func (s *server) configureRouter() {
 	s.router.HandleFunc("/users", s.handleUsersCreate()).Methods("POST")
 	s.router.HandleFunc("/sessions", s.handleSessionsCreate()).Methods("POST")
 
+	enter := s.router.PathPrefix("/enter").Subrouter()
+	enter.HandleFunc("/register", s.handleRegister()).Methods("GET")
+	enter.HandleFunc("/login", s.handleLogin()).Methods("GET")
+
 	private := s.router.PathPrefix("/private").Subrouter()
 	private.Use(s.authenticateUser)
 	private.HandleFunc("/whoami", s.handleWhoami()).Methods("GET")
+	private.HandleFunc("/main", s.handleMain()).Methods("GET")
 }
 
 func (s *server) setRequestID(next http.Handler) http.Handler {
@@ -115,6 +121,24 @@ func (s *server) authenticateUser(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ctxKeyUser, u)))
 	})
+}
+
+func (s *server) handleMain() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.sendHtmlFile(w, r, "main")
+	}
+}
+
+func (s *server) handleRegister() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.sendHtmlFile(w, r, "register")
+	}
+}
+
+func (s *server) handleLogin() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.sendHtmlFile(w, r, "login")
+	}
 }
 
 func (s *server) handleWhoami() http.HandlerFunc {
@@ -194,4 +218,17 @@ func (s *server) respond(w http.ResponseWriter, r *http.Request, code int, data 
 	if data != nil {
 		json.NewEncoder(w).Encode(data)
 	}
+}
+
+func (s *server) sendHtmlFile(w http.ResponseWriter, r *http.Request, htmlName string) {
+	filePath := "D:/GitHubProjects/http-rest-API/internal/app/htmlfiles/" + htmlName + ".html"
+
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		s.error(w, r, http.StatusInternalServerError, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html")
+
+	http.ServeFile(w, r, filePath)
 }

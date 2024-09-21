@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>User Dashboard</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				background-color: #f0f0f0;
+				margin: 0;
+				padding: 0;
+			}
+			.container {
+				max-width: 800px;
+				margin: 50px auto;
+				background-color: #fff;
+				padding: 20px;
+				box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+				border-radius: 10px;
+			}
+			h1 {
+				color: #333;
+			}
+			.nav {
+				margin-top: 20px;
+			}
+			.nav a {
+				margin-right: 15px;
+				text-decoration: none;
+				color: #007bff;
+			}
+			.nav a:hover {
+				text-decoration: underline;
+			}
+			.logout {
+				color: red;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Welcome, John Doe!</h1>
+			<!-- Это можно динамически менять, подставляя имя пользователя -->
+			<p>
+				This is your personal dashboard. You can manage your account and explore
+				other features.
+			</p>
+
+			<div class="nav">
+				<a href="/profile">View Profile</a>
+				<a href="/settings">Account Settings</a>
+				<a href="/logout" class="logout">Logout</a>
+			</div>
+		</div>
+	</body>
+</html>
