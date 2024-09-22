@@ -37,7 +37,7 @@ func (r *UserRepository) Find(id int) (*model.User, error) {
 
 func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
 	for _, u := range r.users {
-		if u.Email == email {
+		if u.Email.String == email {
 			return u, nil
 		}
 	}

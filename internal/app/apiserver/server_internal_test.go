@@ -66,12 +66,34 @@ func TestServer_handleUsersCreate(t *testing.T) {
 		expectedCode int
 	}{
 		{
-			name: "valid",
-			payload: map[string]string{
-				"email":    "user@example.org",
-				"password": "password",
+			name: "valid with email password",
+			payload: map[string]interface{}{
+				"id_telegram":      -1,
+				"email":            "user@example.org",
+				"password":         "password",
+				"confirm_password": "password",
+				"height":           160,
+				"age":              25,
+				"weight":           60,
+				"gender":           "male",
+				"phone_number":     "-1",
 			},
 			expectedCode: http.StatusCreated,
+		},
+		{
+			name: "valid with email password but invalid confirm password",
+			payload: map[string]interface{}{
+				"id_telegram":      -1,
+				"email":            "user@example.org",
+				"password":         "password",
+				"confirm_password": "12345678",
+				"height":           160,
+				"age":              25,
+				"weight":           60,
+				"gender":           "male",
+				"phone_number":     "-1",
+			},
+			expectedCode: http.StatusBadRequest,
 		},
 		{
 			name:         "invalid payload",
@@ -112,7 +134,7 @@ func TestServer_HandleSessionsCreate(t *testing.T) {
 		{
 			name: "valid",
 			payload: map[string]string{
-				"email":    u.Email,
+				"email":    u.Email.String,
 				"password": u.Password,
 			},
 			expectedCode: http.StatusOK,
@@ -133,7 +155,7 @@ func TestServer_HandleSessionsCreate(t *testing.T) {
 		{
 			name: "invalid password",
 			payload: map[string]string{
-				"email":    u.Email,
+				"email":    u.Email.String,
 				"password": "invalid",
 			},
 			expectedCode: http.StatusUnauthorized,

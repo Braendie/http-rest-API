@@ -10,28 +10,63 @@
 
 				const email = document.getElementById('email').value
 				const password = document.getElementById('password').value
+				const confirmPassword = document.getElementById('confirm_password').value
+				const height = document.getElementById('height').value
+				const age = document.getElementById('age').value
+				const weight = document.getElementById('weight').value
+				const gender = document.getElementById('gender').value
+				const phoneNumber = document.getElementById('phone_number').value || null // Если поле не заполнено, отправляем null
 
-				const data = {
+				const registrationData = {
 					email: email,
 					password: password,
+					confirm_password: confirmPassword,
+					height: parseInt(height),
+					age: parseInt(age),
+					weight: parseInt(weight),
+					gender: gender,
+					phone_number: phoneNumber, // Отправляем null, если не заполнено
 				}
 
 				try {
-					const response = await fetch('http://localhost:8080/users', {
+					// Отправляем запрос на регистрацию
+					const registerResponse = await fetch('http://localhost:8080/users', {
 						method: 'POST',
 						headers: {
 							'Content-Type': 'application/json',
 						},
-						body: JSON.stringify(data),
+						body: JSON.stringify(registrationData),
 					})
 
-					const result = await response.json()
-					console.log('Server response:', result)
+					const registerResult = await registerResponse.json()
+					console.log('Registration response:', registerResult)
 
-					if (response.ok) {
-						alert('Register successful!')
+					if (registerResponse.ok) {
+						// После успешной регистрации отправляем запрос на /sessions для аутентификации
+						const loginData = {
+							email: email,
+							password: password,
+						}
+
+						const loginResponse = await fetch('http://localhost:8080/sessions', {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify(loginData),
+						})
+
+						const loginResult = await loginResponse.json()
+						console.log('Login response:', loginResult)
+
+						if (loginResponse.ok) {
+							// Если аутентификация успешна, перенаправляем на защищенную страницу
+							window.location.href = 'http://localhost:8080/private/main'
+						} else {
+							alert('Login failed: ' + loginResult.message)
+						}
 					} else {
-						alert('Register failed: ' + result.message)
+						alert('Registration failed: ' + registerResult.message)
 					}
 				} catch (error) {
 					console.error('Error:', error)
@@ -47,12 +82,34 @@
 			<input type="email" id="email" name="email" required /><br /><br />
 
 			<label for="password">Password:</label>
+			<input type="password" id="password" name="password" required /><br /><br />
+
+			<label for="confirm_password">Confirm Password:</label>
 			<input
 				type="password"
-				id="password"
-				name="password"
+				id="confirm_password"
+				name="confirm_password"
 				required
 			/><br /><br />
+
+			<label for="height">Height (in cm):</label>
+			<input type="number" id="height" name="height" required /><br /><br />
+
+			<label for="age">Age:</label>
+			<input type="number" id="age" name="age" required /><br /><br />
+
+			<label for="weight">Weight (in kg):</label>
+			<input type="number" id="weight" name="weight" required /><br /><br />
+
+			<label for="gender">Gender:</label>
+			<select id="gender" name="gender" required>
+				<option value="">Select gender</option>
+				<option value="Male">Male</option>
+				<option value="Female">Female</option>
+			</select><br /><br />
+
+			<label for="phone_number">Phone Number (optional):</label>
+			<input type="tel" id="phone_number" name="phone_number" /><br /><br />
 
 			<button type="submit">Submit</button>
 		</form>

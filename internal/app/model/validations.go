@@ -1,11 +1,13 @@
 package model
 
-import validation "github.com/go-ozzo/ozzo-validation"
+import (
+	validation "github.com/go-ozzo/ozzo-validation"
+)
 
-func requiredIf(cond bool) validation.RuleFunc {
+func validationIf(cond bool, validationRule validation.Rule) validation.RuleFunc {
 	return func(value interface{}) error {
 		if cond {
-			return validation.Validate(value, validation.Required)
+			return validation.Validate(value, validationRule)
 		}
 
 		return nil

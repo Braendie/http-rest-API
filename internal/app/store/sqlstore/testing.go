@@ -7,7 +7,6 @@ import (
 	"testing"
 )
 
-// TestDB ...
 func TestDB(t *testing.T, databaseURL string) (*sql.DB, func(...string)) {
 	t.Helper()
 
@@ -22,7 +21,9 @@ func TestDB(t *testing.T, databaseURL string) (*sql.DB, func(...string)) {
 
 	return db, func(tables ...string) {
 		if len(tables) > 0 {
-			db.Exec(fmt.Sprintf("TRUNCATE %s CASCADE", strings.Join(tables, ", ")))
+			if _, err := db.Exec(fmt.Sprintf("TRUNCATE %s CASCADE", strings.Join(tables, ", "))); err != nil {
+				t.Fatal(err)
+			}
 		}
 
 		db.Close()

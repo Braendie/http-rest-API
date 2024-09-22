@@ -2,6 +2,7 @@ package apiserver
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -24,8 +25,9 @@ const (
 )
 
 var (
-	errIncorrectEmailOrPassword = errors.New("incorrect email or password")
-	errNotAuthenticated         = errors.New("not authenticated")
+	errIncorrectEmailOrPassword  = errors.New("incorrect email or password")
+	errNotAuthenticated          = errors.New("not authenticated")
+	errConfirmPasswordIsRequired = errors.New("confirm password is required")
 )
 
 type ctxKey int8
@@ -149,15 +151,14 @@ func (s *server) handleWhoami() http.HandlerFunc {
 
 func (s *server) handleUsersCreate() http.HandlerFunc {
 	type request struct {
-		Email       string `json:"email"`
-		Password    string `json:"password"`
-		FisrtName   string `json:"first_name"`
-		LastName    string `json:"last_name"`
-		Height      int    `json:"height"`
-		Age         int    `json:"age"`
-		Weight      int    `json:"weight"`
-		Gender      string    `json:"gender"`
-		PhoneNumber string `json:"phone_number"`
+		Email           string `json:"email"`
+		Password        string `json:"password"`
+		ConfirmPassword string `json:"confirm_password"`
+		Height          int    `json:"height"`
+		Age             int    `json:"age"`
+		Weight          int    `json:"weight"`
+		Gender          string `json:"gender"`
+		PhoneNumber     string `json:"phone_number"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -167,14 +168,20 @@ func (s *server) handleUsersCreate() http.HandlerFunc {
 			return
 		}
 
+		if req.ConfirmPassword != req.Password {
+			s.error(w, r, http.StatusBadRequest, errConfirmPasswordIsRequired)
+			return
+		}
+
 		u := &model.User{
-			Email:    req.Email,
-			Password: req.Password,
-			FirstName: req.FisrtName,
-			LastName: req.LastName,
-			Height: req.Height,
-			Gender: req.Gender,
-			PhoneNumber: req.PhoneNumber,
+			IDTelegram:  sql.NullInt64{Valid: false},
+			Email:       sql.NullString{String: req.Email, Valid: true},
+			Password:    req.Password,
+			Height:      req.Height,
+			Age:         req.Age,
+			Weight:      req.Weight,
+			Gender:      req.Gender,
+			PhoneNumber: sql.NullString{String: req.PhoneNumber, Valid: req.PhoneNumber != ""},
 		}
 		if err := s.store.User().Create(u); err != nil {
 			s.error(w, r, http.StatusUnprocessableEntity, err)
@@ -207,6 +214,7 @@ func (s *server) handleSessionsCreate() http.HandlerFunc {
 
 		session, err := s.sessionStore.Get(r, sessionName)
 		if err != nil {
+			s.logger.Error("Failed to get session: ", err)
 			s.error(w, r, http.StatusInternalServerError, err)
 			return
 		}

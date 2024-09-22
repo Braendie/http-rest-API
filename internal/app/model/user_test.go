@@ -21,11 +21,18 @@ func TestUser_Validate(t *testing.T) {
 			isValid: true,
 		},
 		{
+			name: "valid with telegram",
+			u: func() *model.User {
+				return model.TestUserWithTelegram(t)
+			},
+			isValid: true,
+		},
+		{
 			name: "with encrypted password",
 			u: func() *model.User {
 				u := model.TestUser(t)
 				u.Password = ""
-				u.EncryptedPassword = "encryptedpassword"
+				u.EncryptedPassword.String = "encryptedpassword"
 
 				return u
 			},
@@ -35,7 +42,7 @@ func TestUser_Validate(t *testing.T) {
 			name: "empty email",
 			u: func() *model.User {
 				u := model.TestUser(t)
-				u.Email = ""
+				u.Email.String = ""
 
 				return u
 			},
@@ -45,7 +52,7 @@ func TestUser_Validate(t *testing.T) {
 			name: "invalid email",
 			u: func() *model.User {
 				u := model.TestUser(t)
-				u.Email = "invalid"
+				u.Email.String = "invalid"
 
 				return u
 			},
@@ -65,7 +72,7 @@ func TestUser_Validate(t *testing.T) {
 			name: "short password",
 			u: func() *model.User {
 				u := model.TestUser(t)
-				u.Email = "short"
+				u.Email.String = "short"
 
 				return u
 			},
