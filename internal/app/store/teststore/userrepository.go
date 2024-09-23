@@ -44,3 +44,13 @@ func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
 
 	return nil, store.ErrRecordNotFound
 }
+
+func (r *UserRepository) FindByIDTelegram(idTelegram int) (*model.User, error) {
+	for _, u := range r.users {
+		if u.IDTelegram.Int64 == int64(idTelegram) {
+			return u, nil
+		}
+	}
+
+	return nil, store.ErrRecordNotFound
+}

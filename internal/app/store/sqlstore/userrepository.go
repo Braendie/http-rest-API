@@ -118,3 +118,29 @@ func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
 
 	return u, nil
 }
+
+func (r *UserRepository) FindByIDTelegram(idTelegram int) (*model.User, error) {
+	u := &model.User{}
+	if err := r.store.db.QueryRow(
+		"SELECT id, id_telegram, email, encrypted_password, height, age, weight, gender, phone_number FROM users WHERE id_telegram = $1",
+		idTelegram,
+	).Scan(
+		&u.ID,
+		&u.IDTelegram,
+		&u.Email,
+		&u.EncryptedPassword,
+		&u.Height,
+		&u.Age,
+		&u.Weight,
+		&u.Gender,
+		&u.PhoneNumber,
+	); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, store.ErrRecordNotFound
+		}
+
+		return nil, err
+	}
+
+	return u, nil
+}
