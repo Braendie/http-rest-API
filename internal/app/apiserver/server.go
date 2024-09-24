@@ -7,6 +7,7 @@ import (
 	"errors"
 	"net/http"
 	"os"
+	"text/template"
 	"time"
 
 	"github.com/google/uuid"
@@ -22,6 +23,7 @@ const (
 	sessionName        = "braendie"
 	ctxKeyUser  ctxKey = iota
 	ctxKeyRequestID
+	domainURL = "http://localhost:8080"
 )
 
 var (
@@ -66,6 +68,10 @@ func (s *server) configureRouter() {
 	enter := s.router.PathPrefix("/enter").Subrouter()
 	enter.HandleFunc("/register", s.handleRegister()).Methods("GET")
 	enter.HandleFunc("/login", s.handleLogin()).Methods("GET")
+
+	telegram := s.router.PathPrefix("/telegram").Subrouter()
+	telegram.HandleFunc("/check", s.handleTelegramCheck()).Methods("POST")
+	telegram.HandleFunc("/users", s.handleTelegramUsersCreate()).Methods("GET")
 
 	private := s.router.PathPrefix("/private").Subrouter()
 	private.Use(s.authenticateUser)
@@ -123,6 +129,80 @@ func (s *server) authenticateUser(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ctxKeyUser, u)))
 	})
+}
+
+func (s *server) handleTelegramCheck() http.HandlerFunc {
+	type request struct {
+		IDTelegram int `json:"id_telegram"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		u, err := s.store.User().FindByIDTelegram(req.IDTelegram)
+		if err != nil {
+			if err == store.ErrRecordNotFound {
+				tmpl, err := template.ParseFiles("D:/GitHubProjects/http-rest-API/internal/app/htmlfiles/telegram_register.html")
+				if err != nil {
+					s.error(w, r, http.StatusInternalServerError, err)
+					return
+				}
+
+				err = tmpl.Execute(w, req)
+				if err != nil {
+					s.error(w, r, http.StatusInternalServerError, err)
+					return
+				}
+
+				return
+			}
+
+			s.error(w, r, http.StatusInternalServerError, err)
+
+		}
+
+		s.createSessionsTelegram(w, r, u)
+		s.respond(w, r, http.StatusFound, u)
+		http.Redirect(w, r, domainURL+"/private/main", http.StatusFound)
+	}
+}
+
+func (s *server) handleTelegramUsersCreate() http.HandlerFunc {
+	type request struct {
+		IDTelegram  int    `json:"id_telegram"`
+		Height      int    `json:"height"`
+		Age         int    `json:"age"`
+		Weight      int    `json:"weight"`
+		Gender      string `json:"gender"`
+		PhoneNumber string `json:"phone_number"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		u := &model.User{
+			IDTelegram:  sql.NullInt64{Int64: int64(req.IDTelegram), Valid: true},
+			Height:      req.Height,
+			Age:         req.Age,
+			Weight:      req.Weight,
+			Gender:      req.Gender,
+			PhoneNumber: sql.NullString{String: req.PhoneNumber, Valid: req.PhoneNumber != ""},
+		}
+		if err := s.store.User().Create(u); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		s.respond(w, r, http.StatusCreated, u)
+	}
 }
 
 func (s *server) handleMain() http.HandlerFunc {
@@ -234,6 +314,7 @@ func (s *server) error(w http.ResponseWriter, r *http.Request, code int, err err
 }
 
 func (s *server) respond(w http.ResponseWriter, r *http.Request, code int, data interface{}) {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	if data != nil {
 		json.NewEncoder(w).Encode(data)
@@ -251,4 +332,21 @@ func (s *server) sendHtmlFile(w http.ResponseWriter, r *http.Request, htmlName s
 	w.Header().Set("Content-Type", "text/html")
 
 	http.ServeFile(w, r, filePath)
+}
+
+func (s *server) createSessionsTelegram(w http.ResponseWriter, r *http.Request, u *model.User) {
+	session, err := s.sessionStore.Get(r, sessionName)
+	if err != nil {
+		s.logger.Error("Failed to get session: ", err)
+		s.error(w, r, http.StatusInternalServerError, err)
+		return
+	}
+
+	session.Values["user_id"] = u.ID
+	if err := s.sessionStore.Save(r, w, session); err != nil {
+		s.error(w, r, http.StatusInternalServerError, err)
+		return
+	}
+
+	s.respond(w, r, http.StatusOK, nil)
 }
