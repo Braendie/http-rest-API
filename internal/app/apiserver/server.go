@@ -7,7 +7,6 @@ import (
 	"errors"
 	"net/http"
 	"os"
-	"text/template"
 	"time"
 
 	"github.com/google/uuid"
@@ -71,7 +70,6 @@ func (s *server) configureRouter() {
 
 	telegram := s.router.PathPrefix("/telegram").Subrouter()
 	telegram.HandleFunc("/check", s.handleTelegramCheck()).Methods("POST")
-	telegram.HandleFunc("/users", s.handleTelegramUsersCreate()).Methods("GET")
 
 	private := s.router.PathPrefix("/private").Subrouter()
 	private.Use(s.authenticateUser)
@@ -146,18 +144,15 @@ func (s *server) handleTelegramCheck() http.HandlerFunc {
 		u, err := s.store.User().FindByIDTelegram(req.IDTelegram)
 		if err != nil {
 			if err == store.ErrRecordNotFound {
-				tmpl, err := template.ParseFiles("D:/GitHubProjects/http-rest-API/internal/app/htmlfiles/telegram_register.html")
-				if err != nil {
-					s.error(w, r, http.StatusInternalServerError, err)
+				u := &model.User{
+					IDTelegram: sql.NullInt64{Int64: int64(req.IDTelegram), Valid: true},
+				}
+				if err := s.store.User().Create(u); err != nil {
+					s.error(w, r, http.StatusUnprocessableEntity, err)
 					return
 				}
 
-				err = tmpl.Execute(w, req)
-				if err != nil {
-					s.error(w, r, http.StatusInternalServerError, err)
-					return
-				}
-
+				http.Redirect(w, r, domainURL+"/private/main", http.StatusFound)
 				return
 			}
 
@@ -168,40 +163,6 @@ func (s *server) handleTelegramCheck() http.HandlerFunc {
 		s.createSessionsTelegram(w, r, u)
 		s.respond(w, r, http.StatusFound, u)
 		http.Redirect(w, r, domainURL+"/private/main", http.StatusFound)
-	}
-}
-
-func (s *server) handleTelegramUsersCreate() http.HandlerFunc {
-	type request struct {
-		IDTelegram  int    `json:"id_telegram"`
-		Height      int    `json:"height"`
-		Age         int    `json:"age"`
-		Weight      int    `json:"weight"`
-		Gender      string `json:"gender"`
-		PhoneNumber string `json:"phone_number"`
-	}
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		req := &request{}
-		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-			s.error(w, r, http.StatusBadRequest, err)
-			return
-		}
-
-		u := &model.User{
-			IDTelegram:  sql.NullInt64{Int64: int64(req.IDTelegram), Valid: true},
-			Height:      req.Height,
-			Age:         req.Age,
-			Weight:      req.Weight,
-			Gender:      req.Gender,
-			PhoneNumber: sql.NullString{String: req.PhoneNumber, Valid: req.PhoneNumber != ""},
-		}
-		if err := s.store.User().Create(u); err != nil {
-			s.error(w, r, http.StatusUnprocessableEntity, err)
-			return
-		}
-
-		s.respond(w, r, http.StatusCreated, u)
 	}
 }
 
@@ -234,11 +195,6 @@ func (s *server) handleUsersCreate() http.HandlerFunc {
 		Email           string `json:"email"`
 		Password        string `json:"password"`
 		ConfirmPassword string `json:"confirm_password"`
-		Height          int    `json:"height"`
-		Age             int    `json:"age"`
-		Weight          int    `json:"weight"`
-		Gender          string `json:"gender"`
-		PhoneNumber     string `json:"phone_number"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -254,14 +210,9 @@ func (s *server) handleUsersCreate() http.HandlerFunc {
 		}
 
 		u := &model.User{
-			IDTelegram:  sql.NullInt64{Valid: false},
-			Email:       sql.NullString{String: req.Email, Valid: true},
-			Password:    req.Password,
-			Height:      req.Height,
-			Age:         req.Age,
-			Weight:      req.Weight,
-			Gender:      req.Gender,
-			PhoneNumber: sql.NullString{String: req.PhoneNumber, Valid: req.PhoneNumber != ""},
+			IDTelegram: sql.NullInt64{Valid: false},
+			Email:      sql.NullString{String: req.Email, Valid: true},
+			Password:   req.Password,
 		}
 		if err := s.store.User().Create(u); err != nil {
 			s.error(w, r, http.StatusUnprocessableEntity, err)

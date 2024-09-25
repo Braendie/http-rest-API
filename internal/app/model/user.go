@@ -14,27 +14,17 @@ type User struct {
 	Email             sql.NullString `json:"email"`
 	Password          string         `json:"password,omitempty"`
 	EncryptedPassword sql.NullString `json:"-"`
-	Height            int            `json:"height"`
-	Age               int            `json:"age"`
-	Weight            int            `json:"weight"`
-	Gender            string         `json:"gender"`
-	PhoneNumber       sql.NullString `json:"phone_number"`
 }
 
 func (u *User) Validate() error {
 	return validation.ValidateStruct(
 		u,
-		validation.Field(&u.IDTelegram, validation.By(validationIf(!u.Email.Valid, validation.Required))),
+		validation.Field(&u.IDTelegram, validation.By(validationIf(!u.Email.Valid, validation.Required)), validation.By(validationIf(!u.Email.Valid, validation.Min(0)))),
 		validation.Field(&u.Email, validation.By(validationIf(!u.IDTelegram.Valid, validation.Required)), validation.By(validationIf(!u.IDTelegram.Valid, is.Email))),
 		validation.Field(&u.Password,
 			validation.By(validationIf(u.EncryptedPassword.String == "" && u.Email.Valid, validation.Required)),
 			validation.Length(6, 30),
 		),
-		validation.Field(&u.Height, validation.Required),
-		validation.Field(&u.Age, validation.Required),
-		validation.Field(&u.Weight, validation.Required),
-		validation.Field(&u.Gender, validation.Required, validation.By(validationIf(u.Gender == "male" || u.Gender == "female", validation.Required))),
-		validation.Field(&u.PhoneNumber, validation.Length(0, 11)),
 	)
 }
 

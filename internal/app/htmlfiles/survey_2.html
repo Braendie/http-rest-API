@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Анкета</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "San Francisco", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            width: 90vw;
+            height: 90vh;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+
+        .question {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #2196F3;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+        }
+
+        .hidden {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(210px, 1fr)); /* Элементы растягиваются от минимального до максимального размера */
+            grid-auto-rows: minmax(210px, 1fr); /* Адаптивные размеры строк */
+            gap: 10px; /* Фиксированное расстояние между элементами */
+            margin: 20px auto;
+        }
+
+        .image-grid div {
+            width: 200px;
+            height: 200px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            border: 3px solid transparent;
+        }
+
+        .image-grid div.selected {
+            border: 3px solid #2196F3;
+        }
+
+        .emoji-slider {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .emoji-slider input[type="range"] {
+            width: 100px;
+        }
+
+        .emoji {
+            font-size: 40px;
+        }
+
+        .answer-button {
+            padding: 20px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            background-color: #ccc;
+            color: white;
+            cursor: pointer;
+        }
+
+        .answer-button.active {
+            background-color: #2196F3;
+        }
+
+        form label {
+            display: block;
+            font-size: 1.2rem;
+            margin: 10px 0;
+        }
+
+        input[type="checkbox"], input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        input[type="text"] {
+            margin-top: 10px;
+            width: 80%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #2196F3; /* Синий цвет для активной кнопки */
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: #ccc; /* Серый цвет для неактивной кнопки */
+            cursor: not-allowed; /* Изменяем курсор, чтобы показать, что кнопку нельзя нажать */
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container" id="page1">
+    <div class="question">Ваш любимый домашний питомец</div>
+    <div class="image-grid">
+        <div class="image-item">
+            <img src="file:///C:/Users/tetif/Pictures/Amarelia/Dog%20Face.webp" alt="Собака" width="200" height="200">
+        </div>
+        <div class="image-item">
+            <img src="file:///C:/Users/tetif/Pictures/Amarelia/Cat%20Face.webp" alt="Кошка" width="200" height="200">
+        </div>
+        <div class="image-item">
+            <img src="file:///C:/Users/tetif/Pictures/Amarelia/Hamster.webp" alt="Хомяк" width="200" height="200">
+        </div>
+        <div class="image-item">
+            <img src="file:///C:/Users/tetif/Pictures/Amarelia/Parrot.webp" alt="Попугай" width="200" height="200">
+        </div>
+        <div class="image-item">
+            <img src="file:///C:/Users/tetif/Pictures/Amarelia/Rabbit%20Face.webp" alt="Кролик" width="200" height="200">
+        </div>
+        <div class="image-item">
+            <img src="file:///C:/Users/tetif/Pictures/Amarelia/Snake.webp" alt="Змея" width="200" height="200">
+        </div>
+    </div>
+    <div class="button-group">
+        <button disabled>назад</button>
+        <button id="next1" disabled>далее</button>
+    </div>
+</div>
+
+<div class="container hidden" id="page2">
+    <div class="question">Кто вас больше привлекает?</div>
+    <div class="emoji-slider">
+        <div class="image-item">
+            <img src="file:///C:/Users/tetif/Pictures/Amarelia/Baby.webp" alt="Ребенок" width="200" height="200">
+            <div class="percentage" id="percentage1">100%</div>
+        </div>
+        <input type="range" min="0" max="100" value="50" id="attractionRange">
+        <div class="image-item">
+            <img src="file:///C:/Users/tetif/Pictures/Amarelia/Old%20Woman.webp" alt="Бабка" width="200" height="200">
+            <div class="percentage" id="percentage2">0%</div>
+        </div>
+    </div>
+    <div class="button-group">
+        <button id="back1">назад</button>
+        <button id="next2">далее</button>
+    </div>
+</div>
+
+
+<div class="container hidden" id="page3">
+    <div class="question">Вам нравится ...?</div>
+    <div>
+        <button id="yesButton" class="answer-button">да</button>
+        <button id="noButton" class="answer-button">нет</button>
+    </div>
+    <div class="button-group">
+        <button id="back2">назад</button>
+        <button id="next3" disabled>далее</button>
+    </div>
+</div>
+
+<div class="container hidden" id="page4">
+    <div class="question">Выберите пункты о себе</div>
+    <form>
+        <label><input type="checkbox" name="info" value="sports"> Занимаюсь спортом</label><br>
+        <label><input type="checkbox" name="info" value="science"> Увлекаюсь наукой</label><br>
+        <label><input type="checkbox" name="info" value="news"> Слежу за новостями</label><br>
+        <label><input type="checkbox" name="info" value="fashion"> Разбираюсь в одежде</label><br>
+        <label><input type="checkbox" name="info" value="travel"> Путешествую</label><br>
+        <label><input type="checkbox" name="info" value="other"> Другое...</label><br>
+        <input type="text" id="other-text" placeholder="Введите текст"><br>
+    </form>
+    <div class="button-group">
+        <button id="back3">назад</button>
+        <button id="next4" disabled>далее</button>
+    </div>
+</div>
+
+<div class="container hidden" id="page5">
+    <h2>Выберите верное утверждение</h2>
+    <form>
+        <label><input type="radio" name="statement" value="sports"> Занимаюсь спортом</label><br>
+        <label><input type="radio" name="statement" value="science"> Увлекаюсь наукой</label><br>
+        <label><input type="radio" name="statement" value="news"> Слежу за новостями</label><br>
+        <label><input type="radio" name="statement" value="fashion"> Разбираюсь в одежде</label><br>
+        <label><input type="radio" name="statement" value="travel"> Путешествую</label><br>
+        <label><input type="radio" name="statement" value="other"> Другое...</label><br>
+        <input type="text" id="other-radio-text" placeholder="Введите текст"><br>
+    </form>
+    <div class="button-group">
+        <button id="back4">назад</button>
+        <button id="next5" disabled>завершить</button>
+    </div>
+</div>
+
+<div class="container hidden" id="page6">
+    <h2>Ваши ответы</h2>
+    <pre id="formDataDisplay"></pre>
+    <div class="button-group">
+        <button id="back5">назад</button>
+        <button id="submit">отправить</button>
+    </div>
+</div>
+
+<script>
+    // Переход между страницами
+    document.getElementById('next1').addEventListener('click', function() {
+        document.getElementById('page1').classList.add('hidden');
+        document.getElementById('page2').classList.remove('hidden');
+    });
+
+    document.getElementById('back1').addEventListener('click', function() {
+        document.getElementById('page2').classList.add('hidden');
+        document.getElementById('page1').classList.remove('hidden');
+    });
+
+    document.getElementById('next2').addEventListener('click', function() {
+        document.getElementById('page2').classList.add('hidden');
+        document.getElementById('page3').classList.remove('hidden');
+    });
+
+    document.getElementById('back2').addEventListener('click', function() {
+        document.getElementById('page3').classList.add('hidden');
+        document.getElementById('page2').classList.remove('hidden');
+    });
+
+    document.getElementById('next3').addEventListener('click', function() {
+        document.getElementById('page3').classList.add('hidden');
+        document.getElementById('page4').classList.remove('hidden');
+    });
+
+    document.getElementById('back3').addEventListener('click', function() {
+        document.getElementById('page4').classList.add('hidden');
+        document.getElementById('page3').classList.remove('hidden');
+    });
+
+    document.getElementById('next4').addEventListener('click', function() {
+        document.getElementById('page4').classList.add('hidden');
+        document.getElementById('page5').classList.remove('hidden');
+    });
+
+    document.getElementById('back4').addEventListener('click', function() {
+        document.getElementById('page5').classList.add('hidden');
+        document.getElementById('page4').classList.remove('hidden');
+    });
+
+    // Логика выбора картинок (мультивыбор)
+    const images = document.querySelectorAll('.image-grid div');
+    const next1Button = document.getElementById('next1');
+
+    images.forEach(image => {
+        image.addEventListener('click', function() {
+            image.classList.toggle('selected');
+            // Активация кнопки "Далее", если выбрана хотя бы одна картинка
+            next1Button.disabled = ![...images].some(img => img.classList.contains('selected'));
+        });
+    });
+
+
+    // Логика кнопок "да" и "нет" на 3ей странице
+    const yesButton = document.getElementById('yesButton');
+    const noButton = document.getElementById('noButton');
+    const next3Button = document.getElementById('next3');
+
+    yesButton.addEventListener('click', function() {
+        yesButton.classList.add('active');
+        noButton.classList.remove('active');
+        next3Button.disabled = false;
+    });
+
+    noButton.addEventListener('click', function() {
+        noButton.classList.add('active');
+        yesButton.classList.remove('active');
+        next3Button.disabled = false;
+    });
+
+
+    // Активация кнопки "Далее" на 4 странице
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const next4Button = document.getElementById('next4');
+    const otherText = document.getElementById('other-text');
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            next4Button.disabled = !([...checkboxes].some(checkbox => checkbox.checked) || otherText.value.trim() !== '');
+        });
+    });
+
+    otherText.addEventListener('input', function() {
+        next4Button.disabled = !([...checkboxes].some(checkbox => checkbox.checked) || otherText.value.trim() !== '');
+    });
+
+    // Логика активации кнопки на странице с радио-кнопками
+    const radioButtons = document.querySelectorAll('input[name="statement"]');
+    const next5Button = document.getElementById('next5');
+    const otherRadioText = document.getElementById('other-radio-text');
+
+    radioButtons.forEach(radio => {
+        radio.addEventListener('change', function() {
+            next5Button.disabled = false;
+            otherRadioText.disabled = radio.value !== 'other';
+        });
+    });
+
+    otherRadioText.addEventListener('input', function() {
+        next5Button.disabled = otherRadioText.value.trim() === '';
+    });
+
+    const formData = {
+        pet: [...document.querySelectorAll('.image-grid div.selected')].map(img => img.querySelector('img').alt).join(', '),
+        gender_percent: parseInt(document.getElementById('attractionRange').value), // Преобразуем в int
+        list_da_net: yesButton.classList.contains('active'), // true, если "да", false, если "нет"
+        list_checkboxes: [...document.querySelectorAll('input[type="checkbox"]:checked')].map(checkbox => checkbox.value),
+        other_checkbox_text: document.getElementById('other-text').value.trim(), // Текст из поля "другое" для чекбоксов
+        statement: document.querySelector('input[name="statement"]:checked') ? document.querySelector('input[name="statement"]:checked').value : null,
+        other_statement_text: document.getElementById('other-radio-text').value.trim() // Текст из поля "другое" для радио-кнопок
+    };
+
+    // let response = await fetch('http://localhost:8080/users', {
+    //     method: 'POST',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify(formData),
+    // });
+
+    document.getElementById('next5').addEventListener('click', function() {
+        const formData = {
+            pet: [...document.querySelectorAll('.image-grid div.selected')].map(img => img.querySelector('img').alt).join(', '),
+            gender_percent: parseInt(document.getElementById('attractionRange').value), // Преобразуем в int
+            list_da_net: yesButton.classList.contains('active'), // true, если "да", false, если "нет"
+            list_checkboxes: [...document.querySelectorAll('input[type="checkbox"]:checked')].map(checkbox => checkbox.value),
+            other_checkbox_text: document.getElementById('other-text').value.trim(), // Текст из поля "другое" для чекбоксов
+            statement: document.querySelector('input[name="statement"]:checked') ? document.querySelector('input[name="statement"]:checked').value : null,
+            other_statement_text: document.getElementById('other-radio-text').value.trim() // Текст из поля "другое" для радио-кнопок
+        };
+
+        // Показать данные на странице 6
+        document.getElementById('formDataDisplay').textContent = JSON.stringify(formData, null, 2); // Форматирование JSON
+
+        // Переход на страницу 6
+        document.getElementById('page5').classList.add('hidden');
+        document.getElementById('page6').classList.remove('hidden');
+    });
+
+
+
+</script>
+</body>
+</html>

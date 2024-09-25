@@ -1,6 +1,7 @@
 package teststore_test
 
 import (
+	"database/sql"
 	"testing"
 
 	"github.com/http-rest-API/internal/app/model"
@@ -37,6 +38,21 @@ func TestUserRepository_FindByEmail(t *testing.T) {
 	s.User().Create(u)
 
 	u, err = s.User().FindByEmail(email)
+	assert.NoError(t, err)
+	assert.NotNil(t, u)
+}
+
+func TestUserRepository_FindByIDTelegram(t *testing.T) {
+	s := teststore.New()
+	idTelegram := 12345678
+	_, err := s.User().FindByIDTelegram(idTelegram)
+	assert.EqualError(t, err, store.ErrRecordNotFound.Error())
+
+	u := model.TestUserWithTelegram(t)
+	u.IDTelegram = sql.NullInt64{Int64: int64(idTelegram), Valid: true}
+	s.User().Create(u)
+
+	u, err = s.User().FindByIDTelegram(idTelegram)
 	assert.NoError(t, err)
 	assert.NotNil(t, u)
 }
