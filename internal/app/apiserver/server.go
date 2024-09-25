@@ -129,6 +129,30 @@ func (s *server) authenticateUser(next http.Handler) http.Handler {
 	})
 }
 
+func (s *server) handleMain() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.sendHtmlFile(w, r, "main")
+	}
+}
+
+func (s *server) handleRegister() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.sendHtmlFile(w, r, "register")
+	}
+}
+
+func (s *server) handleLogin() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.sendHtmlFile(w, r, "login")
+	}
+}
+
+func (s *server) handleWhoami() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.respond(w, r, http.StatusOK, r.Context().Value(ctxKeyUser).(*model.User))
+	}
+}
+
 func (s *server) handleTelegramCheck() http.HandlerFunc {
 	type request struct {
 		IDTelegram int `json:"id_telegram"`
@@ -152,6 +176,7 @@ func (s *server) handleTelegramCheck() http.HandlerFunc {
 					return
 				}
 
+				s.createSessions(w, r, u)
 				http.Redirect(w, r, domainURL+"/private/main", http.StatusFound)
 				return
 			}
@@ -160,33 +185,9 @@ func (s *server) handleTelegramCheck() http.HandlerFunc {
 
 		}
 
-		s.createSessionsTelegram(w, r, u)
+		s.createSessions(w, r, u)
 		s.respond(w, r, http.StatusFound, u)
 		http.Redirect(w, r, domainURL+"/private/main", http.StatusFound)
-	}
-}
-
-func (s *server) handleMain() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		s.sendHtmlFile(w, r, "main")
-	}
-}
-
-func (s *server) handleRegister() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		s.sendHtmlFile(w, r, "register")
-	}
-}
-
-func (s *server) handleLogin() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		s.sendHtmlFile(w, r, "login")
-	}
-}
-
-func (s *server) handleWhoami() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		s.respond(w, r, http.StatusOK, r.Context().Value(ctxKeyUser).(*model.User))
 	}
 }
 
@@ -243,19 +244,7 @@ func (s *server) handleSessionsCreate() http.HandlerFunc {
 			return
 		}
 
-		session, err := s.sessionStore.Get(r, sessionName)
-		if err != nil {
-			s.logger.Error("Failed to get session: ", err)
-			s.error(w, r, http.StatusInternalServerError, err)
-			return
-		}
-
-		session.Values["user_id"] = u.ID
-		if err := s.sessionStore.Save(r, w, session); err != nil {
-			s.error(w, r, http.StatusInternalServerError, err)
-			return
-		}
-
+		s.createSessions(w, r, u)
 		s.respond(w, r, http.StatusOK, nil)
 	}
 }
@@ -285,13 +274,8 @@ func (s *server) sendHtmlFile(w http.ResponseWriter, r *http.Request, htmlName s
 	http.ServeFile(w, r, filePath)
 }
 
-func (s *server) createSessionsTelegram(w http.ResponseWriter, r *http.Request, u *model.User) {
-	session, err := s.sessionStore.Get(r, sessionName)
-	if err != nil {
-		s.logger.Error("Failed to get session: ", err)
-		s.error(w, r, http.StatusInternalServerError, err)
-		return
-	}
+func (s *server) createSessions(w http.ResponseWriter, r *http.Request, u *model.User) {
+	session := sessions.NewSession(s.sessionStore, sessionName)
 
 	session.Values["user_id"] = u.ID
 	if err := s.sessionStore.Save(r, w, session); err != nil {

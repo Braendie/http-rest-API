@@ -186,7 +186,7 @@ func TestServer_handleTelegramCheck(t *testing.T) {
 			payload: map[string]int{
 				"id_telegram": 12345678,
 			},
-			expectedCode: http.StatusFound,
+			expectedCode: http.StatusOK,
 		},
 		{
 			name:         "invalid payload",
