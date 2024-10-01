@@ -29,6 +29,7 @@ var (
 	errIncorrectEmailOrPassword  = errors.New("incorrect email or password")
 	errNotAuthenticated          = errors.New("not authenticated")
 	errConfirmPasswordIsRequired = errors.New("confirm password is required")
+	errEasyPassword              = errors.New("password is easy to hack")
 )
 
 type ctxKey int8
@@ -210,9 +211,14 @@ func (s *server) handleUsersCreate() http.HandlerFunc {
 			return
 		}
 
+		if !model.CheckPassword(req.Password) {
+			s.error(w, r, http.StatusBadRequest, errEasyPassword)
+			return
+		}
+
 		u := &model.User{
 			IDTelegram: sql.NullInt64{Valid: false},
-			Email:      sql.NullString{String: req.Email, Valid: true},
+			Email:      sql.NullString{String: req.Email, Valid: req.Email != ""},
 			Password:   req.Password,
 		}
 		if err := s.store.User().Create(u); err != nil {

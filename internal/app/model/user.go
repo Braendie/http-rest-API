@@ -2,6 +2,7 @@ package model
 
 import (
 	"database/sql"
+	"strings"
 
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
@@ -56,4 +57,15 @@ func encryptedString(s string) (string, error) {
 	}
 
 	return string(b), nil
+}
+
+func CheckPassword(password string) bool {
+	if len(password) < 6 {
+		return false
+	} else if password == strings.ToUpper(strings.ToLower(password)) || password == strings.ToLower(strings.ToUpper(password)) {
+		return false
+	} else if !strings.ContainsAny(password, "1234567890") {
+		return false
+	}
+	return true
 }
