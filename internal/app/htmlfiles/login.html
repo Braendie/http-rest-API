@@ -4,6 +4,98 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Login Form</title>
+		<style>
+			body {
+				margin: 0;
+				padding: 0;
+				font-family: 'Arial', sans-serif;
+				background-image: url('http://localhost:8080/enter/images?image_name=login');
+				background-size: cover;
+				background-position: center;
+				background-repeat: no-repeat;
+				height: 100vh;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				color: #fff;
+			}
+
+			.login-container {
+				background-color: rgba(255, 255, 255, 0.9);
+				padding: 40px;
+				border-radius: 15px;
+				box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+				width: 400px;
+				text-align: center;
+			}
+
+			h2 {
+				margin-bottom: 20px;
+				font-size: 28px;
+				color: #333;
+				font-weight: bold;
+			}
+
+			label {
+				font-weight: bold;
+				color: #333;
+				display: block;
+				text-align: left;
+				margin-bottom: 8px;
+				margin-top: 10px;
+			}
+
+			input[type='email'],
+			input[type='password'] {
+				width: 100%;
+				padding: 12px;
+				margin-bottom: 15px;
+				border-radius: 25px;
+				border: 1px solid #ccc;
+				font-size: 16px;
+				box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+			}
+
+			input[type='email']:focus,
+			input[type='password']:focus {
+				outline: none;
+				border-color: #ff7f50;
+				box-shadow: 0 0 8px rgba(255, 127, 80, 0.5);
+			}
+
+			button {
+				width: 100%;
+				padding: 12px;
+				background-color: #ff7f50;
+				color: white;
+				font-size: 18px;
+				border: none;
+				border-radius: 25px;
+				cursor: pointer;
+				transition: background-color 0.3s;
+				margin-top: 10px;
+			}
+
+			button:hover {
+				background-color: #ff6347;
+			}
+
+			.login-container form {
+				display: flex;
+				flex-direction: column;
+			}
+
+			a {
+				color: #ff7f50;
+				text-decoration: none;
+				margin-top: 15px;
+				display: inline-block;
+			}
+
+			a:hover {
+				text-decoration: underline;
+			}
+		</style>
 		<script>
 			async function submitForm(event) {
 				event.preventDefault() // Останавливаем отправку формы по умолчанию
@@ -40,20 +132,18 @@
 		</script>
 	</head>
 	<body>
-		<h2>Login Form</h2>
-		<form onsubmit="submitForm(event)">
-			<label for="email">Email:</label>
-			<input type="email" id="email" name="email" required /><br /><br />
+		<div class="login-container">
+			<h2>Login to Your Account</h2>
+			<form onsubmit="submitForm(event)">
+				<label for="email">Email:</label>
+				<input type="email" id="email" name="email" required />
 
-			<label for="password">Password:</label>
-			<input
-				type="password"
-				id="password"
-				name="password"
-				required
-			/><br /><br />
+				<label for="password">Password:</label>
+				<input type="password" id="password" name="password" required />
 
-			<button type="submit">Submit</button>
-		</form>
+				<button type="submit">Submit</button>
+			</form>
+			<a href="#">Forgot password?</a>
+		</div>
 	</body>
 </html>

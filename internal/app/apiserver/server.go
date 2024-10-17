@@ -82,7 +82,7 @@ func (s *server) configureRouter() {
 	enter := s.router.PathPrefix("/enter").Subrouter()
 	enter.HandleFunc("/register", s.handleRegister()).Methods("GET")
 	enter.HandleFunc("/login", s.handleLogin()).Methods("GET")
-	enter.HandleFunc("/images", s.handleImageRegister()).Methods("GET")
+	enter.HandleFunc("/images", s.handleImage()).Methods("GET")
 
 	// Define routes for Telegram-related actions.
 	telegram := s.router.PathPrefix("/telegram").Subrouter()
@@ -181,9 +181,13 @@ func (s *server) handleWhoami() http.HandlerFunc {
 }
 
 // handleImageRegister serves a specific image used on the registration page.
-func (s *server) handleImageRegister() http.HandlerFunc {
+func (s *server) handleImage() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		filePath := "D:/GitHubProjects/http-rest-API/internal/app/htmlfiles/images/background_image_register.webp"
+		queryParams := r.URL.Query()
+
+		imageName := queryParams.Get("image_name")
+
+		filePath := "D:/GitHubProjects/http-rest-API/internal/app/htmlfiles/images/image_" + imageName + ".webp"
 
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
 			s.error(w, r, http.StatusNotFound, err)
