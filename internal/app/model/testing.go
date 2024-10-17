@@ -5,6 +5,7 @@ import (
 	"testing"
 )
 
+// TestUser returns a test model with email and password for testing.
 func TestUser(t *testing.T) *User {
 	return &User{
 		IDTelegram:  sql.NullInt64{Valid: false},
@@ -13,6 +14,7 @@ func TestUser(t *testing.T) *User {
 	}
 }
 
+// TestUserWithTelegram returns a test mode with telegram id for testing.
 func TestUserWithTelegram(t *testing.T) *User {
 	return &User{
 		IDTelegram:  sql.NullInt64{Int64: 12345678, Valid: true},

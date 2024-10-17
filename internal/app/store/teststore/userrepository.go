@@ -5,11 +5,16 @@ import (
 	"github.com/http-rest-API/internal/app/store"
 )
 
+// UserRepository uses for manipulating with test store.
+// It including:
+// - store: it is test store.
+// - users: it is map that uses how database for testing.
 type UserRepository struct {
 	store *Store
 	users map[int]*model.User
 }
 
+// Create adds a new user into map (it validates before adding).
 func (r *UserRepository) Create(u *model.User) error {
 	if err := u.Validate(); err != nil {
 		return err
@@ -26,6 +31,7 @@ func (r *UserRepository) Create(u *model.User) error {
 	return nil
 }
 
+// Find finds the user in map by using his id.
 func (r *UserRepository) Find(id int) (*model.User, error) {
 	u, ok := r.users[id]
 	if !ok {
@@ -35,6 +41,7 @@ func (r *UserRepository) Find(id int) (*model.User, error) {
 	return u, nil
 }
 
+// Find finds the user in map by using his email.
 func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
 	for _, u := range r.users {
 		if u.Email.String == email {
@@ -45,6 +52,7 @@ func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
 	return nil, store.ErrRecordNotFound
 }
 
+// Find finds the user in database by using his telegram id.
 func (r *UserRepository) FindByIDTelegram(idTelegram int) (*model.User, error) {
 	for _, u := range r.users {
 		if u.IDTelegram.Int64 == int64(idTelegram) {

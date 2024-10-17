@@ -7,6 +7,7 @@ import (
 	"testing"
 )
 
+//TestDB creates test database for testing and after it deletes all the information in database.
 func TestDB(t *testing.T, databaseURL string) (*sql.DB, func(...string)) {
 	t.Helper()
 

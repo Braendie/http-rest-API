@@ -11,6 +11,7 @@ type UserRepository struct {
 	store *Store
 }
 
+// Create adds a new user into database (it validates before adding).
 func (r *UserRepository) Create(u *model.User) error {
 	if err := u.Validate(); err != nil {
 		return err
@@ -27,6 +28,7 @@ func (r *UserRepository) Create(u *model.User) error {
 	).Scan(&u.ID)
 }
 
+// Find finds the user in database by using his id.
 func (r *UserRepository) Find(id int) (*model.User, error) {
 	u := &model.User{}
 	if err := r.store.db.QueryRow(
@@ -48,6 +50,7 @@ func (r *UserRepository) Find(id int) (*model.User, error) {
 	return u, nil
 }
 
+// Find finds the user in database by using his email.
 func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
 	u := &model.User{}
 	if err := r.store.db.QueryRow(
@@ -69,6 +72,7 @@ func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
 	return u, nil
 }
 
+// Find finds the user in database by using his telegram id.
 func (r *UserRepository) FindByIDTelegram(idTelegram int) (*model.User, error) {
 	u := &model.User{}
 	if err := r.store.db.QueryRow(
